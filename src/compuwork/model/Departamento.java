@@ -1,5 +1,6 @@
 package compuwork.model;
 
+import compuwork.exception.DepartamentoLlenoException;
 import java.util.ArrayList;
 
 public class Departamento {
@@ -13,21 +14,24 @@ public class Departamento {
 
     // Constructor
     public Departamento(String id, String nombre, String descripcion, int capacidadMaxima) {
-        this.id             = id;
-        this.nombre         = nombre;
-        this.descripcion    = descripcion;
+        this.id              = id;
+        this.nombre          = nombre;
+        this.descripcion     = descripcion;
         this.capacidadMaxima = capacidadMaxima;
-        this.empleados      = new ArrayList<>();
+        this.empleados       = new ArrayList<>();
     }
 
     // Agrega un empleado al departamento
-    public void agregarEmpleado(Empleado empleado) {
+    public void agregarEmpleado(Empleado empleado) throws DepartamentoLlenoException {
+        // Validar que el departamento no este lleno
         if (empleados.size() >= capacidadMaxima) {
-            System.out.println("Error: el departamento " + nombre + " esta lleno.");
-            return;
+            throw new DepartamentoLlenoException(
+                "El departamento " + nombre + " esta lleno. " +
+                "Capacidad maxima: " + capacidadMaxima);
         }
+        // Validar que el empleado no este ya asignado
         if (empleados.contains(empleado)) {
-            System.out.println("Error: el empleado ya esta asignado a este departamento.");
+            System.out.println("El empleado ya esta asignado a este departamento.");
             return;
         }
         empleados.add(empleado);
@@ -41,7 +45,7 @@ public class Departamento {
             empleado.setDepartamento("Sin asignar");
             System.out.println("Empleado " + empleado.getNombreCompleto() + " removido de " + nombre);
         } else {
-            System.out.println("Error: el empleado no pertenece a este departamento.");
+            System.out.println("El empleado no pertenece a este departamento.");
         }
     }
 
@@ -72,15 +76,15 @@ public class Departamento {
     }
 
     // Getters
-    public String getId()                      { return id; }
-    public String getNombre()                  { return nombre; }
-    public String getDescripcion()             { return descripcion; }
-    public ArrayList<Empleado> getEmpleados()  { return empleados; }
-    public int getCapacidadMaxima()            { return capacidadMaxima; }
+    public String getId()                     { return id; }
+    public String getNombre()                 { return nombre; }
+    public String getDescripcion()            { return descripcion; }
+    public ArrayList<Empleado> getEmpleados() { return empleados; }
+    public int getCapacidadMaxima()           { return capacidadMaxima; }
 
     // Setters
-    public void setNombre(String nombre)             { this.nombre = nombre; }
-    public void setDescripcion(String descripcion)   { this.descripcion = descripcion; }
+    public void setNombre(String nombre)                { this.nombre = nombre; }
+    public void setDescripcion(String descripcion)      { this.descripcion = descripcion; }
     public void setCapacidadMaxima(int capacidadMaxima) { this.capacidadMaxima = capacidadMaxima; }
 
     // Muestra la informacion del departamento

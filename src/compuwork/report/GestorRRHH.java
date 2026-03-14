@@ -1,6 +1,8 @@
 package compuwork.report;
 
 import compuwork.exception.DepartamentoException;
+import compuwork.exception.DepartamentoLlenoException;
+import compuwork.exception.EmpleadoDuplicadoException;
 import compuwork.exception.EmpleadoNoEncontradoException;
 import compuwork.model.Departamento;
 import compuwork.model.Empleado;
@@ -10,7 +12,7 @@ import java.util.ArrayList;
 public class GestorRRHH {
 
     // Lista de empleados y departamentos registrados
-    private ArrayList<Empleado> empleados;
+    private ArrayList<Empleado>     empleados;
     private ArrayList<Departamento> departamentos;
 
     // Constructor
@@ -22,7 +24,14 @@ public class GestorRRHH {
     // ───────────────────────────────────────────────── Gestion de empleados ─────────────────────────────────────────────────
 
     // Registra un nuevo empleado en el sistema
-    public void registrarEmpleado(Empleado empleado) {
+    public void registrarEmpleado(Empleado empleado) throws EmpleadoDuplicadoException {
+        // Validar que no exista un empleado con el mismo ID
+        for (Empleado e : empleados) {
+            if (e.getId().equals(empleado.getId())) {
+                throw new EmpleadoDuplicadoException(
+                    "Ya existe un empleado con el ID: " + empleado.getId());
+            }
+        }
         empleados.add(empleado);
         System.out.println("Empleado registrado: " + empleado.getNombreCompleto());
     }
@@ -41,7 +50,8 @@ public class GestorRRHH {
                 return e;
             }
         }
-        throw new EmpleadoNoEncontradoException("No se encontro empleado con ID: " + id);
+        throw new EmpleadoNoEncontradoException(
+            "No se encontro empleado con ID: " + id);
     }
 
     // Muestra todos los empleados registrados
@@ -57,7 +67,7 @@ public class GestorRRHH {
         System.out.println("==============================\n");
     }
 
-    // ───────────────────────────────────────────── Gestion de departamentos ─────────────────────────────────────────────
+   // ───────────────────────────────────────────── Gestion de departamentos ─────────────────────────────────────────────
 
     // Registra un nuevo departamento en el sistema
     public void registrarDepartamento(Departamento departamento) {
@@ -71,8 +81,7 @@ public class GestorRRHH {
         if (departamento.getTotalEmpleados() > 0) {
             throw new DepartamentoException(
                 "No se puede eliminar el departamento " + departamento.getNombre() +
-                " porque tiene " + departamento.getTotalEmpleados() + " empleado(s) asignado(s)."
-            );
+                " porque tiene " + departamento.getTotalEmpleados() + " empleado(s) asignado(s).");
         }
         departamentos.remove(departamento);
         System.out.println("Departamento eliminado: " + departamento.getNombre());
@@ -85,7 +94,8 @@ public class GestorRRHH {
                 return d;
             }
         }
-        throw new DepartamentoException("No se encontro departamento con ID: " + id);
+        throw new DepartamentoException(
+            "No se encontro departamento con ID: " + id);
     }
 
     // Muestra todos los departamentos registrados
@@ -102,12 +112,12 @@ public class GestorRRHH {
         System.out.println("==================================\n");
     }
 
-    // ──────────────────────────────────────────────Asignacion de empleados ──────────────────────────────────────────────
+// ──────────────────────────────────────────────Asignacion de empleados ──────────────────────────────────────────────
 
     // Asigna un empleado a un departamento
     public void asignarEmpleadoADepartamento(String idEmpleado, String idDepartamento)
-            throws EmpleadoNoEncontradoException, DepartamentoException {
-        Empleado empleado       = buscarEmpleadoPorId(idEmpleado);
+            throws EmpleadoNoEncontradoException, DepartamentoException, DepartamentoLlenoException {
+        Empleado     empleado     = buscarEmpleadoPorId(idEmpleado);
         Departamento departamento = buscarDepartamentoPorId(idDepartamento);
         departamento.agregarEmpleado(empleado);
     }
@@ -116,10 +126,10 @@ public class GestorRRHH {
     public void transferirEmpleado(String idEmpleado,
                                     String idDepartamentoOrigen,
                                     String idDepartamentoDestino)
-            throws EmpleadoNoEncontradoException, DepartamentoException {
-        Empleado empleado            = buscarEmpleadoPorId(idEmpleado);
-        Departamento origen          = buscarDepartamentoPorId(idDepartamentoOrigen);
-        Departamento destino         = buscarDepartamentoPorId(idDepartamentoDestino);
+            throws EmpleadoNoEncontradoException, DepartamentoException, DepartamentoLlenoException {
+        Empleado     empleado = buscarEmpleadoPorId(idEmpleado);
+        Departamento origen   = buscarDepartamentoPorId(idDepartamentoOrigen);
+        Departamento destino  = buscarDepartamentoPorId(idDepartamentoDestino);
         origen.eliminarEmpleado(empleado);
         destino.agregarEmpleado(empleado);
         System.out.println("Empleado " + empleado.getNombreCompleto() +

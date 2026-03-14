@@ -1,125 +1,261 @@
 package compuwork;
 
 import compuwork.exception.DepartamentoException;
+import compuwork.exception.DepartamentoLlenoException;
+import compuwork.exception.EmpleadoDuplicadoException;
 import compuwork.exception.EmpleadoNoEncontradoException;
+import compuwork.exception.SalarioInvalidoException;
 import compuwork.model.*;
 import compuwork.report.GestorRRHH;
 
+import java.util.Scanner;
+
 public class Main {
+
+    static Scanner scanner = new Scanner(System.in);
+    static GestorRRHH gestor = new GestorRRHH();
 
     public static void main(String[] args) {
 
-        GestorRRHH gestor = new GestorRRHH();
+        int opcion = 0;
 
-        // ── Crear departamentos ──────────────────────────────────────────────
-        System.out.println("===== REGISTRANDO DEPARTAMENTOS =====");
-        Departamento dTI     = new Departamento("D001", "Tecnologia",       "Desarrollo de software", 10);
-        Departamento dVentas = new Departamento("D002", "Ventas",           "Gestion comercial",       5);
-        Departamento dRRHH   = new Departamento("D003", "Recursos Humanos", "Gestion del talento",     4);
+        System.out.println("=========================================");
+        System.out.println("   BIENVENIDO AL SISTEMA COMPUWORK       ");
+        System.out.println("=========================================");
 
-        gestor.registrarDepartamento(dTI);
-        gestor.registrarDepartamento(dVentas);
-        gestor.registrarDepartamento(dRRHH);
+        // Menu principal
+        do {
+            System.out.println("\n===== MENU PRINCIPAL =====");
+            System.out.println("1. Registrar empleado permanente");
+            System.out.println("2. Registrar empleado temporal");
+            System.out.println("3. Registrar departamento");
+            System.out.println("4. Asignar empleado a departamento");
+            System.out.println("5. Transferir empleado entre departamentos");
+            System.out.println("6. Listar empleados");
+            System.out.println("7. Listar departamentos");
+            System.out.println("8. Generar reporte de desempeno");
+            System.out.println("0. Salir");
+            System.out.print("Seleccione una opcion: ");
 
-        // ── Crear empleados ──────────────────────────────────────────────────
-        System.out.println("\n===== REGISTRANDO EMPLEADOS =====");
-        EmpleadoPermanente ep1 = new EmpleadoPermanente(
-                "E001", "Laura", "Martinez", "laura@compuwork.com",
-                4500000, 1200000, true, 20);
+            opcion = Integer.parseInt(scanner.nextLine());
 
-        EmpleadoPermanente ep2 = new EmpleadoPermanente(
-                "E002", "Carlos", "Gomez", "carlos@compuwork.com",
-                3800000, 900000, true, 15);
+            switch (opcion) {
+                case 1: registrarEmpleadoPermanente(); break;
+                case 2: registrarEmpleadoTemporal();   break;
+                case 3: registrarDepartamento();       break;
+                case 4: asignarEmpleado();             break;
+                case 5: transferirEmpleado();          break;
+                case 6: gestor.listarEmpleados();      break;
+                case 7: gestor.listarDepartamentos();  break;
+                case 8: generarReporte();              break;
+                case 0: System.out.println("\nHasta luego!"); break;
+                default: System.out.println("Opcion invalida, intente de nuevo."); break;
+            }
 
-        EmpleadoTemporal et1 = new EmpleadoTemporal(
-                "E003", "Ana", "Torres", "ana@compuwork.com", 0,
-                "2025-12-31", 25000, 160, "TalentoPro");
+        } while (opcion != 0);
 
-        EmpleadoTemporal et2 = new EmpleadoTemporal(
-                "E004", "Pedro", "Ruiz", "pedro@compuwork.com", 0,
-                "2025-06-30", 22000, 140, "StaffPlus");
+        scanner.close();
+    }
 
-        gestor.registrarEmpleado(ep1);
-        gestor.registrarEmpleado(ep2);
-        gestor.registrarEmpleado(et1);
-        gestor.registrarEmpleado(et2);
-
-        // ── Asignar empleados a departamentos ────────────────────────────────
-        System.out.println("\n===== ASIGNANDO EMPLEADOS =====");
+    // ── Registrar empleado permanente ────────────────────────────────────────
+    static void registrarEmpleadoPermanente() {
+        System.out.println("\n===== REGISTRAR EMPLEADO PERMANENTE =====");
         try {
-            gestor.asignarEmpleadoADepartamento("E001", "D001");
-            gestor.asignarEmpleadoADepartamento("E002", "D001");
-            gestor.asignarEmpleadoADepartamento("E003", "D002");
-            gestor.asignarEmpleadoADepartamento("E004", "D003");
-        } catch (EmpleadoNoEncontradoException | DepartamentoException e) {
-            System.out.println("Error al asignar: " + e.getMessage());
+            System.out.print("Ingrese el ID: ");
+            String id = scanner.nextLine();
+
+            System.out.print("Ingrese el nombre: ");
+            String nombre = scanner.nextLine();
+
+            System.out.print("Ingrese el apellido: ");
+            String apellido = scanner.nextLine();
+
+            System.out.print("Ingrese el email: ");
+            String email = scanner.nextLine();
+
+            System.out.print("Ingrese el salario base: ");
+            double salarioBase = Double.parseDouble(scanner.nextLine());
+
+            System.out.print("Ingrese la bonificacion anual: ");
+            double bonificacion = Double.parseDouble(scanner.nextLine());
+
+            System.out.print("Tiene seguro medico? (true/false): ");
+            boolean seguro = Boolean.parseBoolean(scanner.nextLine());
+
+            System.out.print("Ingrese los dias de vacaciones: ");
+            int vacaciones = Integer.parseInt(scanner.nextLine());
+
+            EmpleadoPermanente ep = new EmpleadoPermanente(
+                    id, nombre, apellido, email, salarioBase,
+                    bonificacion, seguro, vacaciones);
+
+            gestor.registrarEmpleado(ep);
+
+        } catch (SalarioInvalidoException e) {
+            System.out.println("[SalarioInvalidoException] " + e.getMessage());
+        } catch (EmpleadoDuplicadoException e) {
+            System.out.println("[EmpleadoDuplicadoException] " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Error: ingrese un valor numerico valido.");
         }
+    }
 
-        // ── Listar departamentos y empleados ─────────────────────────────────
-        gestor.listarDepartamentos();
-
-        // ── Generar reporte de desempeno ─────────────────────────────────────
-        System.out.println("===== REPORTE DE DESEMPENO =====");
-        ReporteDesempeno reporte = new ReporteDesempeno(
-                "RPT-001", ep1, "2025-01-01", "Enero - Diciembre 2025");
-
-        reporte.agregarMetrica(new MetricaDesempeno("Cumplimiento de objetivos", 9.0, 0.30, "Supero metas"));
-        reporte.agregarMetrica(new MetricaDesempeno("Calidad del trabajo",       8.5, 0.25, "Minimos errores"));
-        reporte.agregarMetrica(new MetricaDesempeno("Trabajo en equipo",         9.5, 0.20, "Excelente colaboracion"));
-        reporte.agregarMetrica(new MetricaDesempeno("Puntualidad",              10.0, 0.15, "Sin ausencias"));
-        reporte.agregarMetrica(new MetricaDesempeno("Iniciativa",                8.0, 0.10, "Propuso mejoras"));
-        reporte.setComentarioGeneral("Laura es una empleada destacada.");
-
-        System.out.println(reporte.generarReporte());
-
-        // ── Prueba de excepciones ────────────────────────────────────────────
-        System.out.println("\n===== PRUEBA DE EXCEPCIONES =====\n");
-
-        // Prueba 1 - Buscar empleado inexistente
-        System.out.println(">> Prueba 1: Buscar empleado con ID inexistente (E999)");
+    // ── Registrar empleado temporal ──────────────────────────────────────────
+    static void registrarEmpleadoTemporal() {
+        System.out.println("\n===== REGISTRAR EMPLEADO TEMPORAL =====");
         try {
-            gestor.buscarEmpleadoPorId("E999");
+            System.out.print("Ingrese el ID: ");
+            String id = scanner.nextLine();
+
+            System.out.print("Ingrese el nombre: ");
+            String nombre = scanner.nextLine();
+
+            System.out.print("Ingrese el apellido: ");
+            String apellido = scanner.nextLine();
+
+            System.out.print("Ingrese el email: ");
+            String email = scanner.nextLine();
+
+            System.out.print("Ingrese la fecha fin de contrato (YYYY-MM-DD): ");
+            String fechaFin = scanner.nextLine();
+
+            System.out.print("Ingrese la tarifa por hora: ");
+            double tarifa = Double.parseDouble(scanner.nextLine());
+
+            System.out.print("Ingrese las horas trabajadas: ");
+            int horas = Integer.parseInt(scanner.nextLine());
+
+            System.out.print("Ingrese la agencia contratante: ");
+            String agencia = scanner.nextLine();
+
+            EmpleadoTemporal et = new EmpleadoTemporal(
+                    id, nombre, apellido, email, 0,
+                    fechaFin, tarifa, horas, agencia);
+
+            gestor.registrarEmpleado(et);
+
+        } catch (SalarioInvalidoException e) {
+            System.out.println("[SalarioInvalidoException] " + e.getMessage());
+        } catch (EmpleadoDuplicadoException e) {
+            System.out.println("[EmpleadoDuplicadoException] " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Error: ingrese un valor numerico valido.");
+        }
+    }
+
+    // ── Registrar departamento ───────────────────────────────────────────────
+    static void registrarDepartamento() {
+        System.out.println("\n===== REGISTRAR DEPARTAMENTO =====");
+        try {
+            System.out.print("Ingrese el ID: ");
+            String id = scanner.nextLine();
+
+            System.out.print("Ingrese el nombre: ");
+            String nombre = scanner.nextLine();
+
+            System.out.print("Ingrese la descripcion: ");
+            String descripcion = scanner.nextLine();
+
+            System.out.print("Ingrese la capacidad maxima: ");
+            int capacidad = Integer.parseInt(scanner.nextLine());
+
+            Departamento d = new Departamento(id, nombre, descripcion, capacidad);
+            gestor.registrarDepartamento(d);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Error: ingrese un valor numerico valido.");
+        }
+    }
+
+    // ── Asignar empleado a departamento ──────────────────────────────────────
+    static void asignarEmpleado() {
+        System.out.println("\n===== ASIGNAR EMPLEADO A DEPARTAMENTO =====");
+        try {
+            System.out.print("Ingrese el ID del empleado: ");
+            String idEmpleado = scanner.nextLine();
+
+            System.out.print("Ingrese el ID del departamento: ");
+            String idDepartamento = scanner.nextLine();
+
+            gestor.asignarEmpleadoADepartamento(idEmpleado, idDepartamento);
+
         } catch (EmpleadoNoEncontradoException e) {
-            System.out.println("   [EmpleadoNoEncontradoException] " + e.getMessage());
-        }
-
-        // Prueba 2 - Eliminar departamento con empleados asignados
-        System.out.println("\n>> Prueba 2: Eliminar departamento con empleados asignados (D001)");
-        try {
-            gestor.eliminarDepartamento("D001");
+            System.out.println("[EmpleadoNoEncontradoException] " + e.getMessage());
         } catch (DepartamentoException e) {
-            System.out.println("   [DepartamentoException] " + e.getMessage());
+            System.out.println("[DepartamentoException] " + e.getMessage());
+        } catch (DepartamentoLlenoException e) {
+            System.out.println("[DepartamentoLlenoException] " + e.getMessage());
         }
+    }
 
-        // Prueba 3 - Asignar empleado a departamento inexistente
-        System.out.println("\n>> Prueba 3: Asignar empleado a departamento inexistente (D999)");
+    // ── Transferir empleado ──────────────────────────────────────────────────
+    static void transferirEmpleado() {
+        System.out.println("\n===== TRANSFERIR EMPLEADO =====");
         try {
-            gestor.asignarEmpleadoADepartamento("E001", "D999");
-        } catch (EmpleadoNoEncontradoException | DepartamentoException e) {
-            System.out.println("   [DepartamentoException] " + e.getMessage());
-        }
+            System.out.print("Ingrese el ID del empleado: ");
+            String idEmpleado = scanner.nextLine();
 
-        // Prueba 4 - Transferir empleado a departamento inexistente
-        System.out.println("\n>> Prueba 4: Transferir empleado a departamento inexistente");
+            System.out.print("Ingrese el ID del departamento origen: ");
+            String idOrigen = scanner.nextLine();
+
+            System.out.print("Ingrese el ID del departamento destino: ");
+            String idDestino = scanner.nextLine();
+
+            gestor.transferirEmpleado(idEmpleado, idOrigen, idDestino);
+
+        } catch (EmpleadoNoEncontradoException e) {
+            System.out.println("[EmpleadoNoEncontradoException] " + e.getMessage());
+        } catch (DepartamentoException e) {
+            System.out.println("[DepartamentoException] " + e.getMessage());
+        } catch (DepartamentoLlenoException e) {
+            System.out.println("[DepartamentoLlenoException] " + e.getMessage());
+        }
+    }
+
+    // ── Generar reporte de desempeno ─────────────────────────────────────────
+    static void generarReporte() {
+        System.out.println("\n===== GENERAR REPORTE DE DESEMPENO =====");
         try {
-            gestor.transferirEmpleado("E002", "D001", "D999");
-        } catch (EmpleadoNoEncontradoException | DepartamentoException e) {
-            System.out.println("   [DepartamentoException] " + e.getMessage());
+            System.out.print("Ingrese el ID del reporte: ");
+            String idReporte = scanner.nextLine();
+
+            System.out.print("Ingrese el ID del empleado: ");
+            String idEmpleado = scanner.nextLine();
+
+            Empleado empleado = gestor.buscarEmpleadoPorId(idEmpleado);
+
+            System.out.print("Ingrese el periodo de evaluacion: ");
+            String periodo = scanner.nextLine();
+
+            ReporteDesempeno reporte = new ReporteDesempeno(
+                    idReporte, empleado, "2025-01-01", periodo);
+
+            // Agregar metricas
+            do {
+                System.out.print("Nombre de la metrica (o 'fin' para terminar): ");
+                String nombreMetrica = scanner.nextLine();
+                if (nombreMetrica.equalsIgnoreCase("fin")) break;
+
+                System.out.print("Puntuacion (0-10): ");
+                double puntuacion = Double.parseDouble(scanner.nextLine());
+
+                System.out.print("Peso (0-1): ");
+                double peso = Double.parseDouble(scanner.nextLine());
+
+                System.out.print("Observacion: ");
+                String observacion = scanner.nextLine();
+
+                reporte.agregarMetrica(new MetricaDesempeno(
+                        nombreMetrica, puntuacion, peso, observacion));
+
+            } while (true);
+
+            System.out.println(reporte.generarReporte());
+
+        } catch (EmpleadoNoEncontradoException e) {
+            System.out.println("[EmpleadoNoEncontradoException] " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Error: ingrese un valor numerico valido.");
         }
-
-        System.out.println("\n===== FIN PRUEBA DE EXCEPCIONES =====");
-
-        // ── Transferir empleado entre departamentos ───────────────────────────
-        System.out.println("\n===== TRANSFERENCIA DE EMPLEADO =====");
-        try {
-            gestor.transferirEmpleado("E001", "D001", "D002");
-        } catch (EmpleadoNoEncontradoException | DepartamentoException e) {
-            System.out.println("Error en transferencia: " + e.getMessage());
-        }
-
-        // ── Listar empleados al final ─────────────────────────────────────────
-        gestor.listarEmpleados();
-
-        System.out.println("\n===== SISTEMA COMPUWORK FINALIZADO =====");
     }
 }

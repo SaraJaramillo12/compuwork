@@ -1,8 +1,10 @@
 package compuwork.model;
 
+import compuwork.exception.SalarioInvalidoException;
+
 public class EmpleadoPermanente extends Empleado {
 
-    // Atributos especificos del empleado permanente
+    // Atributos 
     private double bonificacionAnual;
     private boolean tieneSeguroMedico;
     private int diasVacaciones;
@@ -11,7 +13,7 @@ public class EmpleadoPermanente extends Empleado {
     public EmpleadoPermanente(String id, String nombre, String apellido,
                                String email, double salarioBase,
                                double bonificacionAnual, boolean tieneSeguroMedico,
-                               int diasVacaciones) {
+                               int diasVacaciones) throws SalarioInvalidoException {
         super(id, nombre, apellido, email, salarioBase);
         this.bonificacionAnual = bonificacionAnual;
         this.tieneSeguroMedico = tieneSeguroMedico;

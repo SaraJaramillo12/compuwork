@@ -1,5 +1,7 @@
 package compuwork.model;
 
+import compuwork.exception.SalarioInvalidoException;
+
 public abstract class Empleado {
 
     // Atributos privados
@@ -11,7 +13,13 @@ public abstract class Empleado {
     private String departamento;
 
     // Constructor
-    public Empleado(String id, String nombre, String apellido, String email, double salarioBase) {
+    public Empleado(String id, String nombre, String apellido,
+                    String email, double salarioBase) throws SalarioInvalidoException {
+        // Validar que el salario no sea negativo
+        if (salarioBase < 0) {
+            throw new SalarioInvalidoException(
+                "El salario no puede ser negativo. Valor ingresado: " + salarioBase);
+        }
         this.id           = id;
         this.nombre       = nombre;
         this.apellido     = apellido;
@@ -37,8 +45,16 @@ public abstract class Empleado {
     public void setNombre(String nombre)             { this.nombre = nombre; }
     public void setApellido(String apellido)          { this.apellido = apellido; }
     public void setEmail(String email)               { this.email = email; }
-    public void setSalarioBase(double salarioBase)   { this.salarioBase = salarioBase; }
     public void setDepartamento(String departamento) { this.departamento = departamento; }
+
+    // Setter de salario con validacion
+    public void setSalarioBase(double salarioBase) throws SalarioInvalidoException {
+        if (salarioBase < 0) {
+            throw new SalarioInvalidoException(
+                "El salario no puede ser negativo. Valor ingresado: " + salarioBase);
+        }
+        this.salarioBase = salarioBase;
+    }
 
     // Muestra la informacion del empleado
     @Override

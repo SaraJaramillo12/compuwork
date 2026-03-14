@@ -1,8 +1,10 @@
 package compuwork.model;
 
+import compuwork.exception.SalarioInvalidoException;
+
 public class EmpleadoTemporal extends Empleado {
 
-    // Atributos especificos del empleado temporal
+    // Atributos
     private String fechaFinContrato;
     private double tarifaPorHora;
     private int horasTrabajadas;
@@ -12,7 +14,7 @@ public class EmpleadoTemporal extends Empleado {
     public EmpleadoTemporal(String id, String nombre, String apellido,
                              String email, double salarioBase,
                              String fechaFinContrato, double tarifaPorHora,
-                             int horasTrabajadas, String agenciaContratante) {
+                             int horasTrabajadas, String agenciaContratante) throws SalarioInvalidoException {
         super(id, nombre, apellido, email, salarioBase);
         this.fechaFinContrato   = fechaFinContrato;
         this.tarifaPorHora      = tarifaPorHora;
